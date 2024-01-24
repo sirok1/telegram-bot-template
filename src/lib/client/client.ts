@@ -204,7 +204,7 @@ export default class Client extends EventEmitter {
                         })
                             .then(() => {
                                 this.db = this.dbEnabled? new PrismaClient() : undefined
-                                logger.log("info", "DB is ready")
+                                if (this.db) logger.log("info", "DB is ready")
                                 this.registerHandlers().then(() => {
                                     this.registerMiddleware()
                                     this.brunchUpdates()
