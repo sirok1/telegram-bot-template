@@ -1,0 +1,9 @@
+/node_modules
+/build
+/docs
+.env
+.env.local
+LICENSE
+pnpm-lock.yaml
+README.md
+.gitignore
