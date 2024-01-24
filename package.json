@@ -25,8 +25,8 @@
     "generate-prisma-client": "prisma generate"
   },
   "keywords": [],
-  "author": "GPL-3.0-or-later",
-  "license": "ISC",
+  "author": "sirok1",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@microsoft/tsdoc": "^0.14.2",
     "@types/amqplib": "^0.10.4",
