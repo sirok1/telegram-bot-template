@@ -2,6 +2,7 @@ import BaseHandler from "@/lib/handlers/base-handler";
 import Client from "@/lib/client/client";
 import logger from "@/lib/logger/logger";
 import InlineKeyboardInterface from "@/lib/interfaces/inline-keyboard-interface";
+import { Context } from "telegraf";
 
 export default class InlineKeyboardHandler extends BaseHandler {
     private readonly client: Client
@@ -13,7 +14,7 @@ export default class InlineKeyboardHandler extends BaseHandler {
     }
 
     public execute() {
-        this.client.on("inlineKeyboardCallback", (context) => {
+        this.client.on("inlineKeyboardCallback", async (context) => {
             let callbackName = context.update.callback_query.data
             let regexpName = /^[^|]*/gm
             let name:string = ""
@@ -42,7 +43,13 @@ export default class InlineKeyboardHandler extends BaseHandler {
                 })
             }
             let file = this.fileMap.get(name.toLowerCase())
+            const user = await this.client.db?.user.findUnique({
+                where: {
+                    id: `${context.from.id}`
+                }
+            })
             if (!file?.isDisabled) {
+                if (file?.isAdmin && !user?.isAdmin) return await context.reply("Это действие доступно только администраторам")
                 try {
                     file?.callback(context, this.client, options)
                 }

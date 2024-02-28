@@ -77,3 +77,50 @@ export function checkPath(path: string, type: "file" | "directory", name: string
 export function cloneObject(obj: object) {
     return Object.assign(Object.create(obj), obj)
 }
+
+export function getHDate(date: string, withYear = true,) {
+    const d = new Date(date)
+    let res = ""
+    res += `${d.getDate()}-го `
+    const m = d.getMonth()
+    switch (m){
+        case 0:
+            res += "Января"
+            break
+        case 1:
+            res += "Февраля"
+            break
+        case 2:
+            res += "Марта"
+            break
+        case 3:
+            res += "Апреля"
+            break
+        case 4:
+            res += "Мая"
+            break
+        case 5:
+            res += "Июня"
+            break
+        case 6:
+            res += "Июля"
+            break
+        case 7:
+            res += "Августа"
+            break
+        case 8:
+            res += "Сентября"
+            break
+        case 9:
+            res += "Октября"
+            break
+        case 10:
+            res += "Ноября"
+            break
+        case 11:
+            res += "Декабря"
+            break
+    }
+    if (withYear) res += `, ${d.getFullYear()}`
+    return res
+}

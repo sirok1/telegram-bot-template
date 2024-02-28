@@ -3,10 +3,11 @@ import logger from "@/lib/logger/logger";
 import CommandInterface from "@/lib/interfaces/command-interface";
 import InlineKeyboardInterface from "@/lib/interfaces/inline-keyboard-interface";
 import KeyboardInteractionInterface from "@/lib/interfaces/command-interaction-interface";
+import RouteInterface from "@/lib/interfaces/route-interface";
 
 export default class BaseHandler {
     public fileArr: { name: string, script: Function }[] = []
-    public fileMap: Map<string, CommandInterface|InlineKeyboardInterface|KeyboardInteractionInterface> = new Map()
+    public fileMap: Map<string, CommandInterface|InlineKeyboardInterface|KeyboardInteractionInterface|RouteInterface> = new Map()
     readonly handlerFilesDir: string = ""
     private readonly handlerName: string = "base handler"
 

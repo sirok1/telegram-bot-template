@@ -37,6 +37,9 @@ export default class Cache {
         }
     }
 
+    public delete(key:string){
+        this.cache_map.delete(key)
+    }
     public drop() {
         this.cache_map.clear()
     }

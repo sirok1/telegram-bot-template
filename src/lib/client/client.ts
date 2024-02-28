@@ -14,6 +14,8 @@ import Producer from "@/lib/queue/producer";
 import Consumer from "@/lib/queue/consumer";
 import {PrismaClient} from "@prisma/client"
 import logger from "@/lib/logger/logger";
+import RouteHandler from "@/lib/handlers/route-handler";
+import Server from "@/lib/rest/server";
 
 configDotenv()
 
@@ -32,6 +34,10 @@ export type ClientOption = {
         host: string,
         port: number
     },
+    server?: {
+        port?: number,
+        routeDir?: string
+    },
     db?: boolean
 }
 
@@ -44,6 +50,7 @@ export default class Client extends EventEmitter {
     readonly inlineKeyboardsDir: string | null = null
     readonly eventsDir: string | null = null
     readonly keyboardInteractionsDir: string | null = null
+    readonly routerDir: string | null = null
     public readyAt: Date | null = null
     public redis: RedisClient | undefined
     public keyboards: { [key: string]: any[] } = {}
@@ -53,6 +60,7 @@ export default class Client extends EventEmitter {
     public eventsHandler: EventsHandler | undefined
     public keyboardHandler: KeyboardHandler | undefined
     public inlineKeyboardHandler: InlineKeyboardHandler | undefined
+    public routerHandler: RouteHandler | undefined
     public admins: string[] | undefined
     public queue: {
         manager: Manager | null,
@@ -61,6 +69,7 @@ export default class Client extends EventEmitter {
     } = {manager: null, producer: null, consumer: null}
     private dbEnabled: boolean = false
     public db: PrismaClient|undefined
+    public server: Server|undefined
 
     constructor(options: ClientOption) {
         super();
@@ -96,6 +105,8 @@ export default class Client extends EventEmitter {
             this.queue.consumer = new Consumer({manager: this.queue.manager})
         }
         if (options.db) this.dbEnabled = true
+        this.routerDir = options.server?.routeDir? checkPath(`${options.server.routeDir}`, "directory", "routerDir") : null
+
     }
 
     public isReady(): boolean {
@@ -146,6 +157,8 @@ export default class Client extends EventEmitter {
     private registerMiddleware(): void {
         this.middleware = new Middleware(this)
         this.middleware.register()
+        this.server = new Server(this)
+        this.server.init()
     }
 
     private async registerHandlers(): Promise<string> {
@@ -166,11 +179,16 @@ export default class Client extends EventEmitter {
                 keyboardDir: this.keyboardInteractionsDir,
                 client: this
             })
+            if (this.routerDir) this.routerHandler = new RouteHandler({
+                routesDir: this.routerDir,
+                client: this
+            })
             try {
                 await this.commandHandler?.getHandlerFiles().catch(console.error)
                 await this.inlineKeyboardHandler?.getHandlerFiles().catch(console.error)
                 await this.keyboardHandler?.getHandlerFiles().catch(console.error)
                 await this.eventsHandler?.getHandlerFiles().catch(console.error)
+                await this.routerHandler?.getHandlerFiles().catch(console.error)
                 resolve('done')
             } catch (e) {
                 // @ts-ignore
@@ -184,6 +202,7 @@ export default class Client extends EventEmitter {
         this.inlineKeyboardHandler?.execute()
         this.keyboardHandler?.execute()
         this.eventsHandler?.register()
+        this.routerHandler?.execute()
     }
 
     public login(token: string): void {
